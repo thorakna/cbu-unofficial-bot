@@ -1,0 +1,16 @@
+{
+  "name": "cengbot",
+  "version": "1.0.0",
+  "description": "CBU CENG BOT",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ONUR YASAR",
+  "license": "ISC"
+}
