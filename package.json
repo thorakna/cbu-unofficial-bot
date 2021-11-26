@@ -4,6 +4,8 @@
   "description": "CBU CENG BOT",
   "main": "index.js",
   "dependencies": {
+    "axios": "^0.24.0",
+    "cheerio": "^1.0.0-rc.10",
     "discord.js": "^12.5.1",
     "dotenv": "^10.0.0"
   },
