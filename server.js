@@ -79,7 +79,7 @@ client.on('ready', () => {
     }
 
     otoDuyuru();
-    setInterval(otoDuyuru, 5*60*1000);
+    setInterval(otoDuyuru, 30*60*1000);
     client.user.setActivity("Thorakna'yı", { type: 2 });
 });
 
