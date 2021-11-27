@@ -2,7 +2,7 @@
   "name": "cengbot",
   "version": "1.0.0",
   "description": "CBU CENG BOT",
-  "main": "index.js",
+  "main": "server.js",
   "dependencies": {
     "axios": "^0.24.0",
     "cheerio": "^1.0.0-rc.10",
@@ -12,6 +12,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ONUR YASAR",
