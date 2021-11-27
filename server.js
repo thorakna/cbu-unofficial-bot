@@ -5,8 +5,21 @@ const dotenv = require('dotenv');
 dotenv.config();
 const axios = require('axios');
 const cheerio = require('cheerio');
+const jsonfile = require('jsonfile')
+const dataFile = './tmp/data.json';
 
 const prefix = "cbu."
+
+const duyuruKaydet = (duyuru) => {
+    jsonfile.readFile(dataFile)
+        .then(obj => {
+            obj.sonduyuru = duyuru;
+            jsonfile.writeFile(dataFile, obj, function (err) {
+                if (err) console.error(err)
+            });
+        })
+        .catch(error => console.error(error));
+}
 
 const duyuruCek = async () => {
     var response = await axios({
@@ -23,6 +36,7 @@ const duyuruCek = async () => {
                 date: $(this).find('h4').text()
             } 
         });
+        duyuruKaydet(customLiArray[0]);
         return customLiArray;
     }else{
         return response.status;
@@ -31,7 +45,7 @@ const duyuruCek = async () => {
 
 client.on('ready', () => {
     console.log('Ready!');
-    client.user.setActivity("Thorakna'yı", {type: 2}); 
+    client.user.setActivity("Thorakna'yı", {type: 2});
 });
 
 client.on('message', async message => {
@@ -71,6 +85,21 @@ client.on('message', async message => {
             message.channel.send(Embed);
             message.react('👌');
         }
+    }else if(gelen_msg === prefix+'otoduyuru'){
+        var channelId = message.channel.id;
+        jsonfile.readFile(dataFile)
+        .then(obj => {
+            if(obj.kanallar.indexOf(channelId) < 0){
+                obj.kanallar.push(channelId);
+                jsonfile.writeFile(dataFile, obj, function (err) {
+                    if (err) console.error(err)
+                });
+                message.channel.send("Yeni duyurular artık bu kanalda otomatik yayınlanacak.");
+            }else{
+                message.channel.send("Zaten bu kanalda oto duyuru yapılıyor kral!");
+            }
+        })
+        .catch(error => console.error(error));
     }
 });
 
