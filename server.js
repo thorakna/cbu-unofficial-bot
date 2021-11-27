@@ -26,80 +26,80 @@ const duyuruCek = async () => {
         method: 'get',
         url: 'https://bilgisayarmuh.mcbu.edu.tr/'
     });
-    if(response.status === 200){
+    if (response.status === 200) {
         const $ = cheerio.load(response.data);
         let customLiArray = [];
-        $('#sc1 .CustomLi').each(function(i, elem) {
+        $('#sc1 .CustomLi').each(function (i, elem) {
             customLiArray[i] = {
                 title: $(this).find('p').text().trim(),
                 url: $(this).find('a').attr('href'),
                 date: $(this).find('h4').text()
-            } 
+            }
         });
         duyuruKaydet(customLiArray[0]);
         return customLiArray;
-    }else{
+    } else {
         return response.status;
     }
 }
 
 client.on('ready', () => {
     console.log('Ready!');
-    client.user.setActivity("Thorakna'yı", {type: 2});
+    client.user.setActivity("Thorakna'yı", { type: 2 });
 });
 
 client.on('message', async message => {
     var gelen_msg = message.content.toLowerCase();
-    if (gelen_msg === 'cbü-bot nedir' || gelen_msg === 'cbü bot nedir' || gelen_msg === 'cbu bot nedir' || gelen_msg === 'cbu-bot nedir' || gelen_msg === 'cbu-bot ne la' || gelen_msg === 'cbu-bot ne' || gelen_msg === 'cbu bot ne la' || gelen_msg === 'cbu bot ne' || gelen_msg === 'cbü bot ne' || gelen_msg === 'cbu bot ne?') {
+    if (gelen_msg === prefix + "hakkinda") {
         message.channel.send('Manisa Celal Bayar Üniversitesi öğrencilerinin kurduğu discord sunucuları için Thorakna tarafından geliştirilen bir discord botudur.');
         console.log('Bir soruya cevap verildi!! [cbu-bot-nedir]');
-    }else if(gelen_msg === prefix+'sonduyuru'){
+    } else if (gelen_msg === prefix + 'sonduyuru') {
         var duyurular = await duyuruCek();
-        if(!Array.isArray(duyurular)){
-            message.channel.send("Hata: "+duyurular);
-        }else{
+        if (!Array.isArray(duyurular)) {
+            message.channel.send("Hata: " + duyurular);
+        } else {
             const Embed = new Discord.MessageEmbed()
-            .setColor([22,191,217])
-            .setTitle(duyurular[0].title)
-            .setDescription(duyurular[0].url)
-            .setFooter(duyurular[0].date);
+                .setColor([22, 191, 217])
+                .setTitle(duyurular[0].title)
+                .setDescription(duyurular[0].url)
+                .setFooter(duyurular[0].date);
 
             message.channel.send(Embed);
             message.react('👌');
         }
-    }else if(gelen_msg === prefix+'duyurular'){
+    } else if (gelen_msg === prefix + 'duyurular') {
         var duyurular = await duyuruCek();
-        if(!Array.isArray(duyurular)){
-            message.channel.send("Hata: "+duyurular);
-        }else{
+        if (!Array.isArray(duyurular)) {
+            message.channel.send("Hata: " + duyurular);
+        } else {
             var duyuruString = "";
-            for(var i=0; i < 15; i++){
-                duyuruString += duyurular[i].title+"\n";
-                duyuruString += duyurular[i].url+"\n\n";
+            for (var i = 0; i < 15; i++) {
+                duyuruString += duyurular[i].title + "\n";
+                duyuruString += duyurular[i].url + "\n\n";
             }
             const Embed = new Discord.MessageEmbed()
-                .setColor([22,191,217])
+                .setColor([22, 191, 217])
                 .setTitle("Son 15 Duyuru")
                 .setDescription(duyuruString)
                 .setFooter("Veriler bilgisayarmuh.mcbu.edu.tr adresinden alınmıştır.");
             message.channel.send(Embed);
             message.react('👌');
         }
-    }else if(gelen_msg === prefix+'otoduyuru'){
+    } else if (gelen_msg === prefix + 'otoduyuru') {
         var channelId = message.channel.id;
         jsonfile.readFile(dataFile)
-        .then(obj => {
-            if(obj.kanallar.indexOf(channelId) < 0){
-                obj.kanallar.push(channelId);
-                jsonfile.writeFile(dataFile, obj, function (err) {
-                    if (err) console.error(err)
-                });
-                message.channel.send("Yeni duyurular artık bu kanalda otomatik yayınlanacak.");
-            }else{
-                message.channel.send("Zaten bu kanalda oto duyuru yapılıyor kral!");
-            }
-        })
-        .catch(error => console.error(error));
+            .then(obj => {
+                if (obj.kanallar.indexOf(channelId) < 0) {
+                    obj.kanallar.push(channelId);
+                    jsonfile.writeFile(dataFile, obj, function (err) {
+                        if (err) console.error(err)
+                    });
+                    message.channel.send("Yeni duyurular artık bu kanalda otomatik yayınlanacak.");
+                } else {
+                    message.channel.send("Zaten bu kanalda otomatik duyuru yapılıyor.");
+                }
+            })
+            .catch(error => console.error(error));
     }
 });
 
