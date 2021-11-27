@@ -13,10 +13,12 @@ const prefix = "cbu."
 const duyuruKaydet = (duyuru) => {
     jsonfile.readFile(dataFile)
         .then(obj => {
-            obj.sonduyuru = duyuru;
-            jsonfile.writeFile(dataFile, obj, function (err) {
-                if (err) console.error(err)
-            });
+            if(JSON.stringify(obj.sonduyuru) != JSON.stringify(duyuru)){
+                obj.sonduyuru = duyuru;
+                jsonfile.writeFile(dataFile, obj, function (err) {
+                    if (err) console.error(err)
+                });
+            }
         })
         .catch(error => console.error(error));
 }
@@ -45,6 +47,31 @@ const duyuruCek = async () => {
 
 client.on('ready', () => {
     console.log('Ready!');
+    
+    const otoDuyuru = async () =>{
+        var duyurular = await duyuruCek();
+        jsonfile.readFile(dataFile)
+            .then(obj => {
+                if(JSON.stringify(obj.sonduyuru) != JSON.stringify(duyurular[0])){
+                    console.log("[Otoduyuru] Kontrol edildi, yeni duyuru yayınlandı!");
+                    const Embed = new Discord.MessageEmbed()
+                        .setColor([22, 191, 217])
+                        .setTitle(duyurular[0].title)
+                        .setDescription(duyurular[0].url)
+                        .setFooter(duyurular[0].date);
+                    obj.kanallar.forEach(el => {
+                        client.channels.cache.get(el).send(Embed);
+                    });
+                    duyuruKaydet(duyurular[0]);
+                }else{
+                    console.log("[Otoduyuru] Kontrol edildi, yeni duyuru yok!");
+                }
+            })
+            .catch(error => console.error(error));
+    }
+
+    otoDuyuru();
+    setInterval(otoDuyuru, 5*60*1000);
     client.user.setActivity("Thorakna'yı", { type: 2 });
 });
 
