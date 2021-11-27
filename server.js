@@ -10,6 +10,12 @@ const dataFile = './tmp/data.json';
 
 const prefix = "cbu."
 
+const kanalSil = (arr, value) => { 
+    return arr.filter(function(ele){ 
+        return ele != value; 
+    });
+}
+
 const duyuruKaydet = (duyuru) => {
     jsonfile.readFile(dataFile)
         .then(obj => {
@@ -60,7 +66,9 @@ client.on('ready', () => {
                         .setDescription(duyurular[0].url)
                         .setFooter(duyurular[0].date);
                     obj.kanallar.forEach(el => {
-                        client.channels.cache.get(el).send(Embed);
+                        client.channels.cache.get(el).send('<@&781806139989426197>', {
+                            embed: Embed,
+                        });
                     });
                     duyuruKaydet(duyurular[0]);
                 }else{
@@ -113,20 +121,49 @@ client.on('message', async message => {
             message.react('👌');
         }
     } else if (gelen_msg === prefix + 'otoduyuru') {
-        var channelId = message.channel.id;
-        jsonfile.readFile(dataFile)
-            .then(obj => {
-                if (obj.kanallar.indexOf(channelId) < 0) {
-                    obj.kanallar.push(channelId);
-                    jsonfile.writeFile(dataFile, obj, function (err) {
-                        if (err) console.error(err)
-                    });
-                    message.channel.send("Yeni duyurular artık bu kanalda otomatik yayınlanacak.");
-                } else {
-                    message.channel.send("Zaten bu kanalda otomatik duyuru yapılıyor.");
-                }
-            })
-            .catch(error => console.error(error));
+        if (!message.member.hasPermission('MANAGE_MESSAGES')) {
+            message.channel
+              .send(
+                ":warning: - Bu komutu kullanabilmek için yetkiniz yok.",
+              );
+        }else{
+            var channelId = message.channel.id;
+            jsonfile.readFile(dataFile)
+                .then(obj => {
+                    if (obj.kanallar.indexOf(channelId) < 0) {
+                        obj.kanallar.push(channelId);
+                        jsonfile.writeFile(dataFile, obj, function (err) {
+                            if (err) console.error(err)
+                        });
+                        message.channel.send("Yeni duyurular artık bu kanalda otomatik yayınlanacak.");
+                    } else {
+                        message.channel.send("Zaten bu kanalda otomatik duyuru yapılıyor.");
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+    } else if (gelen_msg === prefix + 'otoduyuruiptal') {
+        if (!message.member.hasPermission('MANAGE_MESSAGES')) {
+            message.channel
+              .send(
+                ":warning: - Bu komutu kullanabilmek için yetkiniz yok.",
+              );
+        }else{
+            var channelId = message.channel.id;
+            jsonfile.readFile(dataFile)
+                .then(obj => {
+                    if (obj.kanallar.indexOf(channelId) < 0) {
+                        message.channel.send("Zaten bu kanalda otomatik duyuru yapılmıyor.");
+                    } else {
+                        obj.kanallar = kanalSil(obj.kanallar, channelId);
+                        jsonfile.writeFile(dataFile, obj, function (err) {
+                            if (err) console.error(err)
+                        });
+                        message.channel.send("Artık bu kanalda otomatik duyuru yapılmayacak.");
+                    }
+                })
+                .catch(error => console.error(error));
+        }
     }
 });
 
